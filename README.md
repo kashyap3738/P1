@@ -53,3 +53,5 @@ disaster-prediction/
 ├── requirements.txt
 └── README.md
 
+## Live link
+https://pdisasterr.onrender.com
