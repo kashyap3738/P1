@@ -20,17 +20,16 @@ The aim is to provide early predictions that can help authorities and communitie
   - Floods
   - Cyclones
   - Wildfires
-  - Landslides
-- Integrates data from multiple sources such as weather APIs, satellite data, and historical records.
+- Integrates data from multiple sources such as weather APIs.
 
 ---
 
 ## Technologies Used
 - Python
-- Scikit-learn / TensorFlow / Keras *(based on your model)*
+- Scikit-learn 
 - Pandas, NumPy
-- Matplotlib / Seaborn
-- Flask or Streamlit *(if there’s a web app)*
+- Matplotlib 
+- Flask 
 - Git
 
 ---
