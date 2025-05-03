@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disaster Info Hub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='Home.css') }}">
+</head>
+<body>
+
+    <header>
+        <h1>DISASTER MANAGEMENT & Predictions</h1>
+    </header>
+
+    <main>
+        <div class="box-container">
+            <div class="box" >
+                <a href="/earthquake" >
+                    <img src="{{ url_for('static', filename='images/earthquake.jpeg') }}" alt="Earthquake">
+                <h2>Earthquake predictor</h2>
+                <p>An earthquake prediction model analyzes latitude, longitude, depth, and magnitude to identify seismic patterns. Using machine learning and statistical methods, it estimates the probability of future earthquakes, aiding in risk assessment and disaster preparedness.</p>
+            </div>
+
+            <div class="box" >
+                <a href="/weather">
+                    <img src="{{ url_for('static', filename='images/weather.jpeg') }}" alt="Weather">
+                <h2>Other disaster predictor</h2>
+                <p>The model predicts disaster risks and extreme weather conditions using real-time city weather data from the OpenWeather API. It analyzes factors like temperature, humidity, wind speed, and weather conditions to assess potential risks and provide safety recommendations.</p>
+            </div>
+        </div>
+
+        <section class="news-section">
+            <h2>Latest Disaster Management News</h2>
+            <div id="news-container">
+                <p>Loading latest news...</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+    const newsContainer = document.getElementById("news-container");
+
+    fetch("https://gnews.io/api/v4/search?q=disaster&token=5e016ee677f7f2bcf841da2d09082011")
+        .then(response => response.json())
+        .then(data => {
+            newsContainer.innerHTML = ""; // Clear default text
+
+            data.articles.slice(0, 5).forEach(article => {
+                let newsItem = document.createElement("div");
+                newsItem.classList.add("news-item");
+                newsItem.innerHTML = `<a href="${article.url}" target="_blank">${article.title}</a>`;
+                newsContainer.appendChild(newsItem);
+            });
+        })
+        .catch(error => {
+            newsContainer.innerHTML = "<p>Failed to load news.</p>";
+            console.error("Error fetching news:", error);
+        });
+});
+
+    </script>
+</body>
+</html>

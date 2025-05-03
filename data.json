@@ -1,0 +1,136 @@
+[
+    {
+        "Magnitude": 3.2,
+        "Depth": 10.0,
+        "Latitude": 18.5,
+        "Longitude": 84.5,
+        "Risk_Level": "Low",
+        "Prevention": "Stay alert, minor structural checks."
+    },
+    {
+        "Magnitude": 5.5,
+        "Depth": 15.0,
+        "Latitude": 20.0,
+        "Longitude": 86.0,
+        "Risk_Level": "Moderate",
+        "Prevention": "Prepare an emergency plan, secure valuables."
+    },
+    {
+        "Magnitude": 6.7,
+        "Depth": 25.0,
+        "Latitude": 21.2,
+        "Longitude": 87.5,
+        "Risk_Level": "High",
+        "Prevention": "Reinforce structures, create evacuation plans."
+    },
+    {
+        "Magnitude": 8.1,
+        "Depth": 40.0,
+        "Latitude": 22.3,
+        "Longitude": 88.7,
+        "Risk_Level": "Severe",
+        "Prevention": "Evacuate if necessary, follow government alerts."
+    },
+    {
+        "Magnitude": 2.4,
+        "Depth": 7.0,
+        "Latitude": 17.9,
+        "Longitude": 83.8,
+        "Risk_Level": "Very Low",
+        "Prevention": "Protect yourself."
+    },
+    {
+        "Magnitude": 1.8,
+        "Depth": 5.0,
+        "Latitude": 17.686815,
+        "Longitude": 83.218483,
+        "Risk_Level": "Very Low",
+        "Prevention": "Protect yourself."
+    },
+    {
+        "Magnitude": 0.0,
+        "Depth": 0.0,
+        "Latitude": 53.554994,
+        "Longitude": -100.238699,
+        "Risk_Level": "Very Low",
+        "Prevention": "Protect yourself."
+    },
+    {
+        "Magnitude": 7.0,
+        "Depth": 50.0,
+        "Latitude": 50.0,
+        "Longitude": 150.0,
+        "Risk_Level": "High : 7.0-7.9",
+        "Prevention": [
+            "Significant damage",
+            "Have an emergency kit, secure heavy objects. Evacuate unsafe buildings if possible. Drop to the ground, take cover, and hold on during shaking.",
+            "Assess structural damage to the building, including gas leaks or electrical hazards.",
+            "If you live in a high-risk area, prepare to move to higher ground immediately after the shaking subsides in case of a tsunami."
+        ]
+    },
+    {
+        "Magnitude": 6.7,
+        "Depth": 25.0,
+        "Latitude": 21.2,
+        "Longitude": 87.5,
+        "Risk_Level": "Moderate : 5.0-6.9",
+        "Prevention": [
+            "Felt indoors minor damage",
+            "Stay away from windows & heavy objects. Take cover immediately under furniture or against an interior wall. Stay away from windows and glass doors.",
+            "If indoors, remain inside and avoid running outside as debris may fall.",
+            "Ensure you have an emergency kit ready, including food, water, first aid supplies, and flashlights."
+        ]
+    },
+    {
+        "Magnitude": 7.0,
+        "Depth": 100.0,
+        "Latitude": 30.0,
+        "Longitude": 3.1e-05,
+        "Risk_Level": "High : 7.0-7.9",
+        "Prevention": [
+            "Significant damage",
+            "Have an emergency kit, secure heavy objects. Evacuate unsafe buildings if possible. Drop to the ground, take cover, and hold on during shaking.",
+            "Assess structural damage to the building, including gas leaks or electrical hazards.",
+            "If you live in a high-risk area, prepare to move to higher ground immediately after the shaking subsides in case of a tsunami."
+        ]
+    },
+    {
+        "Magnitude": 5.0,
+        "Depth": 30.0,
+        "Latitude": 17.629489,
+        "Longitude": 83.1662,
+        "Risk_Level": "Moderate : 5.0-6.9",
+        "Prevention": [
+            "Felt indoors minor damage",
+            "Stay away from windows & heavy objects. Take cover immediately under furniture or against an interior wall. Stay away from windows and glass doors.",
+            "If indoors, remain inside and avoid running outside as debris may fall.",
+            "Ensure you have an emergency kit ready, including food, water, first aid supplies, and flashlights."
+        ]
+    },
+    {
+        "Magnitude": 10.0,
+        "Depth": 10.0,
+        "Latitude": 59.851224,
+        "Longitude": 107.547631,
+        "Risk_Level": "Severe : 8.0-10.0",
+        "Prevention": [
+            "Major destruction",
+            "Evacuate to an open space immediately. Evacuate immediately if in a building that may collapse or show visible damage.",
+            "Be ready for aftershocks and stay away from potentially hazardous areas, such as bridges, damaged roads, and buildings.",
+            "Implement emergency plans to access food, water, and medical supplies, and establish communication with emergency services."
+        ]
+    },
+    {
+        "Magnitude": 3.0,
+        "Depth": 10.0,
+        "Latitude": 16.572747,
+        "Longitude": 80.689006,
+        "Risk_Level": "Low : 3.0-4.9",
+        "Prevention": [
+            "Minor tremors",
+            "Stay indoors, ensure furniture is stable. Light shaking may occur. No need for evacuation unless a larger aftershock follows.",
+            "Check that heavy furniture is anchored and that exit routes are not obstructed.",
+            "Educate family members on basic earthquake safety (e.g., 'Drop, Cover, and Hold On')."
+        ]
+    }
+]

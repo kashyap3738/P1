@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Earthquake Prediction</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+ 
+
+  </head>
+  <body>
+    <div class="loading">
+      <div class="loading-spinner"></div>
+    </div>
+    <div class="earth-bg"></div>
+    <div class="seismic-wave"></div>
+
+    <div class="content-wrapper">
+      <h1 class="animate__animated animate__fadeInDown">
+        Earthquake Prediction System
+      </h1>
+
+      <!-- Form for Input -->
+      <form id="predictionForm">
+        <label>Magnitude:</label>
+        <input
+          type="number"
+          id="magnitude"
+          step="0.1"
+          min="0"
+          max="10"
+          required
+          placeholder="Enter magnitude (0-10)"
+        />
+
+        <label>Depth (km):</label>
+        <input
+          type="number"
+          id="depth"
+          step="0.1"
+          min="0"
+          required
+          placeholder="Enter depth in kilometers"
+        />
+
+        <label>Latitude:</label>
+        <input
+          type="number"
+          id="latitude"
+          step="0.000001"
+          min="-90"
+          max="90"
+          required
+          placeholder="Enter latitude (-90 to 90)"
+        />
+
+        <label>Longitude:</label>
+        <input
+          type="number"
+          id="longitude"
+          step="0.000001"
+          min="-180"
+          max="180"
+          required
+          placeholder="Enter longitude (-180 to 180)"
+        />
+
+        <button class="predict" type="submit">Predict Earthquake Risk</button>
+      </form>
+
+      <h2 class="result-heading animate__animated animate__fadeIn">
+        Prediction Result
+      </h2>
+      <p id="result" class="result-box animate__animated animate__fadeIn">
+        Submit data to see prediction results
+      </p>
+
+      <h2>Past Predictions</h2>
+      <div class="table-container">
+        <table id="historyTable">
+          <thead>
+            <tr>
+              <th>Latitude</th>
+              <th>Longitude</th>
+              <th>Depth</th>
+              <th>Magnitude</th>
+              <th>Risk Assessment</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <h2>Earthquake Locations</h2>
+      <div id="map"></div>
+
+      <h2>Data Visualization</h2>
+      <div class="charts-container">
+        <div class="chart-wrapper">
+          <canvas id="riskChart"></canvas>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="magnitudeChart"></canvas>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="historyChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Initialize the map
+      let map = L.map("map").setView([20, 0], 2);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; OpenStreetMap contributors",
+      }).addTo(map);
+
+      let earthquakeMarkers = [];
+      let riskChart, magnitudeChart, historyChart;
+
+      // Add custom icon for earthquake markers
+      const earthquakeIcon = (magnitude) => {
+        const size = Math.max(10, magnitude * 5); // Scale by magnitude
+        return L.divIcon({
+          html: `<div style="
+            width: ${size}px;
+            height: ${size}px;
+            background-color: rgba(255, 87, 51, 0.6);
+            border-radius: 50%;
+            box-shadow: 0 0 ${size / 2}px rgba(255, 87, 51, 0.8);
+            animation: pulse-map 2s infinite;
+          "></div>`,
+          className: "earthquake-marker",
+          iconSize: [size, size],
+          iconAnchor: [size / 2, size / 2],
+        });
+      };
+
+      // Add pulsing markers
+      document.head.insertAdjacentHTML(
+        "beforeend",
+        `
+        <style>
+          @keyframes pulse-map {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 0.8; }
+          }
+        </style>
+      `
+      );
+
+      // Generate random seismic waves
+      setInterval(() => {
+        const wave = document.createElement("div");
+        wave.className = "seismic-wave";
+        wave.style.top = `${Math.random() * 100}%`;
+        wave.style.left = `${Math.random() * 100}%`;
+        document.body.appendChild(wave);
+
+        // Remove wave after animation completes
+        setTimeout(() => {
+          wave.remove();
+        }, 4000);
+      }, 8000);
+
+      // Form submission
+      document
+        .getElementById("predictionForm")
+        .addEventListener("submit", async function (event) {
+          event.preventDefault();
+
+          // Show loading animation
+          document.querySelector(".loading").style.display = "flex";
+
+          const data = {
+            Magnitude: parseFloat(document.getElementById("magnitude").value),
+            Depth: parseFloat(document.getElementById("depth").value),
+            Latitude: parseFloat(document.getElementById("latitude").value),
+            Longitude: parseFloat(document.getElementById("longitude").value),
+          };
+
+          try {
+            const response = await fetch("/predict", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+            });
+
+            const result = await response.json();
+
+            // Determine risk class for coloring
+            let riskClass = "";
+            if (result.Risk_Level.toLowerCase().includes("low")) {
+              riskClass = "risk-low";
+            } else if (result.Risk_Level.toLowerCase().includes("medium")) {
+              riskClass = "risk-medium";
+            } else if (result.Risk_Level.toLowerCase().includes("high")) {
+              riskClass = "risk-high";
+            } else if (result.Risk_Level.toLowerCase().includes("severe")) {
+              riskClass = "risk-severe";
+            } else if (result.Risk_Level.toLowerCase().includes("extreme")) {
+              riskClass = "risk-extreme";
+            }
+
+            document.getElementById("result").innerHTML = `
+            <div class="${riskClass}" style="font-size: 24px; margin-bottom: 10px;">
+              ${result.Risk_Level}
+            </div>
+            <div style="margin-top: 15px;">
+              ${result.Prevention}
+            </div>
+          `;
+
+            // Add shake effect to page based on prediction magnitude
+            const magnitude = parseFloat(
+              document.getElementById("magnitude").value
+            );
+            if (magnitude > 5) {
+              document.body.classList.add(
+                "animate__animated",
+                "animate__shake"
+              );
+              setTimeout(() => {
+                document.body.classList.remove(
+                  "animate__animated",
+                  "animate__shake"
+                );
+              }, 1000);
+            }
+
+            // Zoom to the location on map
+            map.setView([data.Latitude, data.Longitude], 6);
+
+            loadCharts();
+          } catch (error) {
+            console.error("Error:", error);
+            document.getElementById("result").innerText =
+              "An error occurred during prediction.";
+          } finally {
+            // Hide loading animation
+            document.querySelector(".loading").style.display = "none";
+          }
+        });
+
+      // Map click event
+      map.on("click", function (event) {
+        const { lat, lng } = event.latlng;
+
+        // Populate latitude and longitude fields with clicked coordinates
+        document.getElementById("latitude").value = lat.toFixed(6);
+        document.getElementById("longitude").value = lng.toFixed(6);
+
+        L.popup()
+          .setLatLng([lat, lng])
+          .setContent(
+            `
+            <div style="color: black; text-align: center;">
+              <strong>Selected Location:</strong><br>
+              Latitude: ${lat.toFixed(6)}<br>
+              Longitude: ${lng.toFixed(6)}<br>
+              <span style="font-size: 0.8em; color: #ff5733;">Fields have been updated</span>
+            </div>
+          `
+          )
+          .openOn(map);
+      });
+
+      // Load and display charts
+      async function loadCharts() {
+        const response = await fetch("/history");
+        const history = await response.json();
+
+        earthquakeMarkers.forEach((marker) => map.removeLayer(marker));
+        earthquakeMarkers = [];
+
+        history.forEach((item) => {
+          let marker = L.marker([item.Latitude, item.Longitude], {
+            icon: earthquakeIcon(item.Magnitude),
+          }).addTo(map).bindPopup(`
+              <div style="color: black; text-align: center;">
+                <strong style="color: #ff5733; font-size: 1.2em;">Earthquake Data</strong><br>
+                <b>Magnitude:</b> ${item.Magnitude}<br>
+                <b>Depth:</b> ${item.Depth}km<br>
+                <b>Risk:</b> ${item.Risk_Level}<br>
+                <small>Recorded at: ${new Date().toLocaleString()}</small>
+              </div>
+            `);
+          earthquakeMarkers.push(marker);
+        });
+
+        const riskCounts = {};
+        const magnitudeData = [];
+        const labels = [];
+
+        // Get Table Body
+        const tableBody = document
+          .getElementById("historyTable")
+          .querySelector("tbody");
+        tableBody.innerHTML = ""; // Clear previous data
+
+        history.forEach((item, index) => {
+          riskCounts[item.Risk_Level] = (riskCounts[item.Risk_Level] || 0) + 1;
+          magnitudeData.push(item.Magnitude);
+          labels.push(`Eq ${index + 1}`);
+
+          // Populate Table with animation delay
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${item.Latitude}</td>
+            <td>${item.Longitude}</td>
+            <td>${item.Depth}</td>
+            <td>${item.Magnitude}</td>
+            <td class="${getRiskClass(item.Risk_Level)}">${item.Risk_Level}</td>
+          `;
+
+          // Add fade-in animation to each row
+          row.style.opacity = 0;
+          row.style.animation = `fadeIn 0.5s forwards ${index * 0.1}s`;
+
+          tableBody.appendChild(row);
+        });
+
+        // Helper function for risk level colors in table
+        function getRiskClass(riskLevel) {
+          if (riskLevel.toLowerCase().includes("low")) return "risk-low";
+          if (riskLevel.toLowerCase().includes("medium")) return "risk-medium";
+          if (riskLevel.toLowerCase().includes("high")) return "risk-high";
+          if (riskLevel.toLowerCase().includes("severe")) return "risk-severe";
+          if (riskLevel.toLowerCase().includes("extreme"))
+            return "risk-extreme";
+          return "";
+        }
+
+        // Chart configuration
+        const chartOptions = {
+          animation: {
+            duration: 2000,
+            easing: "easeOutQuart",
+          },
+          plugins: {
+            legend: {
+              labels: {
+                color: "white",
+                font: {
+                  size: 14,
+                },
+              },
+            },
+          },
+        };
+
+        // Destroy previous charts before creating new ones
+        if (riskChart) riskChart.destroy();
+        if (magnitudeChart) magnitudeChart.destroy();
+        if (historyChart) historyChart.destroy();
+
+        // Risk Level Distribution (Pie Chart)
+        riskChart = new Chart(document.getElementById("riskChart"), {
+          type: "pie",
+          data: {
+            labels: Object.keys(riskCounts),
+            datasets: [
+              {
+                label: "Risk Levels",
+                data: Object.values(riskCounts),
+                backgroundColor: [
+                  "rgba(46, 204, 113, 0.8)", // Low - Green
+                  "rgba(241, 196, 15, 0.8)", // Medium - Yellow
+                  "rgba(230, 126, 34, 0.8)", // High - Orange
+                  "rgba(231, 76, 60, 0.8)", // Severe - Red
+                  "rgba(155, 89, 182, 0.8)", // Extreme - Purple
+                ],
+                borderColor: "rgba(255, 255, 255, 0.5)",
+                borderWidth: 2,
+                hoverOffset: 15,
+              },
+            ],
+          },
+          options: {
+            ...chartOptions,
+            plugins: {
+              ...chartOptions.plugins,
+              title: {
+                display: true,
+                text: "Risk Level Distribution",
+                color: "white",
+                font: {
+                  size: 18,
+                },
+              },
+            },
+          },
+        });
+
+        // Magnitude vs Risk (Bar Chart)
+        magnitudeChart = new Chart(document.getElementById("magnitudeChart"), {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Magnitude Levels",
+                data: magnitudeData,
+                backgroundColor: "rgba(52, 152, 219, 0.7)",
+                borderColor: "rgba(41, 128, 185, 1.0)",
+                borderWidth: 2,
+                borderRadius: 5,
+                hoverBackgroundColor: "rgba(52, 152, 219, 0.9)",
+              },
+            ],
+          },
+          options: {
+            ...chartOptions,
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: {
+                  color: "rgba(255, 255, 255, 0.1)",
+                },
+                ticks: {
+                  color: "rgba(255, 255, 255, 0.7)",
+                },
+              },
+              x: {
+                grid: {
+                  color: "rgba(255, 255, 255, 0.1)",
+                },
+                ticks: {
+                  color: "rgba(255, 255, 255, 0.7)",
+                },
+              },
+            },
+            plugins: {
+              ...chartOptions.plugins,
+              title: {
+                display: true,
+                text: "Magnitude Comparison",
+                color: "white",
+                font: {
+                  size: 18,
+                },
+              },
+            },
+          },
+        });
+
+        // Recent Predictions (Line Chart)
+        historyChart = new Chart(document.getElementById("historyChart"), {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Magnitude Trend",
+                data: magnitudeData,
+                borderColor: "rgba(231, 76, 60, 0.8)",
+                backgroundColor: "rgba(231, 76, 60, 0.2)",
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: "rgba(231, 76, 60, 1.0)",
+                pointBorderColor: "white",
+                pointRadius: 6,
+                pointHoverRadius: 8,
+              },
+            ],
+          },
+          options: {
+            ...chartOptions,
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: {
+                  color: "rgba(255, 255, 255, 0.1)",
+                },
+                ticks: {
+                  color: "rgba(255, 255, 255, 0.7)",
+                },
+              },
+              x: {
+                grid: {
+                  color: "rgba(255, 255, 255, 0.1)",
+                },
+                ticks: {
+                  color: "rgba(255, 255, 255, 0.7)",
+                },
+              },
+            },
+            plugins: {
+              ...chartOptions.plugins,
+              title: {
+                display: true,
+                text: "Magnitude Trend Analysis",
+                color: "white",
+                font: {
+                  size: 18,
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // Initialize on load
+      window.onload = () => {
+        loadCharts();
+
+        // Animate sections as they come into view
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add(
+                  "animate__animated",
+                  "animate__fadeIn"
+                );
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.1 }
+        );
+
+        document.querySelectorAll("h2").forEach((h2) => {
+          observer.observe(h2);
+        });
+      };
+    </script>
+  </body>
+</html>

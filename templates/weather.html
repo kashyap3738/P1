@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Live Weather</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/index.css') }}"
+    />
+  </head>
+
+  <body>
+    <div class="animated-background">
+      <div class="sky-gradient"></div>
+      <div class="stars"></div>
+      <div class="celestial-body"></div>
+      <div class="cloud-layer cloud-layer-1"></div>
+      <div class="cloud-layer cloud-layer-2"></div>
+      <div class="rain-drops"></div>
+      <div class="lightning"></div>
+      <div class="snowflakes"></div>
+    </div>
+    <div class="container-fluid">
+      <header class="app-header">
+        <h1 class="app-title">Disaster Management System</h1>
+        <p class="text-center">
+          Real-time weather updates and disaster risk assessment
+        </p>
+      </header>
+    </div>
+    <div class="searchBar">
+      <div class="searchBarParentDiv">
+        <input type="text" class="inputfield" placeholder="Search City" />
+        <img
+          src="{{ url_for('static', filename='images/search.png') }}"
+          alt=""
+          width="35px"
+          class="searchIcon"
+          onclick="fetchData()"
+        />
+      </div>
+    </div>
+    <div class="mainContentParentDiv d-flex">
+      <div class="leftDiv">
+        <div class="currentTempDiv leftChild p-3 d-flex flex-column gap-2">
+          <h6 class="m-0" id="cityName">City Name</h6>
+          <h5 class="m-0"><span id="cityTemp">-</span> &deg;C</h5>
+          <h6 class="m-0" id="skyDesc">Sky Description</h6>
+          <hr class="line" />
+          <div class="d-flex gap-2">
+            <img
+              src="{{ url_for('static', filename='images/calendar.png') }}"
+              alt=""
+              width="25px"
+            />
+            <h6 class="m-0" id="date">Date</h6>
+          </div>
+          <div class="d-flex gap-2">
+            <img
+              src="{{ url_for('static', filename='images/time.png') }}"
+              alt=""
+              width="25px"
+            />
+            <h6 class="m-0" id="time">Time</h6>
+          </div>
+        </div>
+
+        <div class="nextFiveDays leftChild p-3 d-flex flex-column gap-2">
+          <h6 class="m-0" id="comingFiveDaysTitle">Coming 5 Days</h6>
+          <div id="forecastContainer" class="d-flex flex-column gap-1"></div>
+        </div>
+      </div>
+
+      <div class="rightDiv">
+        <div
+          class="rightRow rowOne d-flex gap-2 justify-content-between align-items-center"
+        >
+          <div class="extraMetric d-flex gap-3">
+            <img
+              src="{{ url_for('static', filename='images/flood.png') }}"
+              alt=""
+              width="35px"
+            />
+            <div>
+              <h6 class="m-0">Humidity</h6>
+              <h6 class="m-0" id="humidity">-</h6>
+            </div>
+          </div>
+          <div class="extraMetric d-flex gap-3">
+            <img
+              src="{{ url_for('static', filename='images/wind (1).png') }}"
+              alt=""
+              width="35px"
+            />
+            <div>
+              <h6 class="m-0">Pressure</h6>
+              <h6 class="m-0" id="pressure">-</h6>
+            </div>
+          </div>
+          <div class="extraMetric d-flex gap-3">
+            <img
+              src="{{ url_for('static', filename='images/hot.png') }}"
+              alt=""
+              width="35px"
+            />
+            <div>
+              <h6 class="m-0">Feels like</h6>
+              <h6 class="m-0" id="feelsLike">-</h6>
+            </div>
+          </div>
+          <div class="extraMetric d-flex gap-3">
+            <img
+              src="{{ url_for('static', filename='images/eye.png') }}"
+              alt=""
+              width="35px"
+            />
+            <div>
+              <h6 class="m-0">Visibility</h6>
+              <h6 class="m-0" id="visiblity">-</h6>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="rightRow rowTwo d-flex justify-content-between align-items-center"
+        >
+          <div class="AQI rowTwoDiv p-3 d-flex flex-column gap-2">
+            <h5>Air Quality Index (AQI)</h5>
+
+            <div class="d-flex align-items-center justify-content-between">
+              <img
+                src="{{ url_for('static', filename='images/wind.png') }}"
+                alt=""
+                width="40px"
+              />
+              <div class="text-center">
+                <h6 id="co">CO</h6>
+                <h6 id="coValue">-</h6>
+              </div>
+              <div class="text-center">
+                <h6 id="so2">SO2</h6>
+                <h6 id="so2Value">-</h6>
+              </div>
+              <div class="text-center">
+                <h6 id="o3">O3</h6>
+                <h6 id="o3Value">-</h6>
+              </div>
+              <div class="text-center">
+                <h6 id="no2">NO2</h6>
+                <h6 id="no2Value">-</h6>
+              </div>
+            </div>
+          </div>
+
+          <div class="sunRise rowTwoDiv p-3 gap-2">
+            <h5 class="m-0">Sunrise & Sunset</h5>
+
+            <div class="d-flex justify-content-between">
+              <div class="sunriseDiv d-flex gap-2 align-items-center">
+                <img
+                  src="{{ url_for('static', filename='images/sun (1).png') }}"
+                  alt=""
+                  width="75px"
+                />
+                <div class="d-flex flex-column gap-1">
+                  <h6 class="m-0">Sunrise</h6>
+                  <h5 class="m-0" id="sunriseTime">-:-- Am</h5>
+                </div>
+              </div>
+
+              <div class="sunsetDiv d-flex gap-2 align-items-center">
+                <img
+                  src="{{ url_for('static', filename='images/moon.png') }}"
+                  alt=""
+                  width="65px"
+                />
+                <div class="d-flex flex-column gap-2">
+                  <h6 class="m-0">Sunset</h6>
+                  <h5 class="m-0" id="sunsetTime">-:-- Pm</h5>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rightRow rowThree d-flex flex-column gap-2">
+          <h5 class="m-0">Today</h5>
+          <div
+            class="d-flex justify-content-between todayTempParentDiv"
+            id="todayTempContainer"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="disasterRiskContainer" class="p-3">
+      <h5>
+        Disaster Risk Level: <span id="riskLevel">-</span>
+        <span id="riskIcon"></span>
+      </h5>
+      <p id="riskMessage">No immediate disaster risk detected.</p>
+      <div class="progress">
+        <div
+          id="riskBar"
+          class="progress-bar"
+          role="progressbar"
+          style="width: 10%"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        ></div>
+      </div>
+      <ul id="safetyTips"></ul>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+      integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://code.jquery.com/jquery-3.7.1.js"
+      integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      function dateFormat(timestamp) {
+        const date = new Date(timestamp * 1000); // Multiply by 1000 to convert from seconds to milliseconds
+        return date.toLocaleString(); // Convert to local time format and return it
+      }
+      function calculateDisasterRisk(data) {
+        // Extract weather data
+        const weather = data.weather[0].main.toLowerCase();
+        const description = data.weather[0].description.toLowerCase();
+        const temp = data.main.temp;
+        const humidity = data.main.humidity;
+        const windSpeed = data.wind.speed;
+        const pressure = data.main.pressure;
+
+        let riskLevel = "Low";
+        let riskMessage = "No immediate disaster risk detected.";
+        let safetyTips = "";
+        let riskPercentage = 10; // Default minimal risk
+        let riskClass = "risk-low";
+        let riskIcon = "✅";
+
+        // Assess risk based on different weather conditions
+        if (weather.includes("thunderstorm") || windSpeed > 20) {
+          riskLevel = "Extreme";
+          riskMessage =
+            "Severe thunderstorm detected. Stay indoors and away from windows.";
+          safetyTips = `
+            <li>Stay indoors and away from windows</li>
+            <li>Unplug electrical appliances</li>
+            <li>Avoid using running water</li>
+            <li>Prepare for potential power outages</li>
+            <li>Monitor emergency broadcasts</li>
+        `;
+          riskPercentage = 95;
+          riskClass = "risk-extreme";
+          riskIcon = "⚡";
+        } else if (weather.includes("tornado") || windSpeed > 30) {
+          riskLevel = "Extreme";
+          riskMessage =
+            "Tornado conditions detected. Seek shelter immediately in a basement or interior room.";
+          safetyTips = `
+            <li>Move to a basement or interior room on the lowest floor</li>
+            <li>Stay away from windows and exterior walls</li>
+            <li>Cover yourself with blankets or mattresses</li>
+            <li>Keep emergency supplies ready</li>
+            <li>Monitor emergency alerts</li>
+        `;
+          riskPercentage = 100;
+          riskClass = "risk-extreme";
+          riskIcon = "🌪️";
+        } else if (
+          weather.includes("hurricane") ||
+          weather.includes("cyclone") ||
+          windSpeed > 25
+        ) {
+          riskLevel = "Extreme";
+          riskMessage =
+            "Hurricane/cyclone conditions detected. Follow evacuation orders if issued.";
+          safetyTips = `
+            <li>Follow evacuation orders immediately if issued</li>
+            <li>Secure your property if time permits</li>
+            <li>Prepare emergency supplies and important documents</li>
+            <li>Stay informed through weather alerts</li>
+            <li>Move to designated storm shelters if available</li>
+        `;
+          riskPercentage = 90;
+          riskClass = "risk-extreme";
+          riskIcon = "🌀";
+        } else if (temp > 40) {
+          riskLevel = "High";
+          riskMessage =
+            "Extreme heat conditions. Risk of heat stroke and dehydration.";
+          safetyTips = `
+            <li>Stay hydrated and drink plenty of water</li>
+            <li>Avoid outdoor activities during peak heat hours</li>
+            <li>Use air conditioning or fans if available</li>
+            <li>Check on elderly neighbors and vulnerable individuals</li>
+            <li>Never leave children or pets in parked cars</li>
+        `;
+          riskPercentage = 75;
+          riskClass = "risk-high";
+          riskIcon = "🔥";
+        } else if (weather.includes("snow") && temp < -10) {
+          riskLevel = "High";
+          riskMessage =
+            "Blizzard conditions with extreme cold. Risk of hypothermia and frostbite.";
+          safetyTips = `
+            <li>Stay indoors and avoid unnecessary travel</li>
+            <li>Keep emergency heating sources available</li>
+            <li>Dress in layers if you must go outside</li>
+            <li>Prepare for potential power outages</li>
+            <li>Check on elderly neighbors and vulnerable individuals</li>
+        `;
+          riskPercentage = 80;
+          riskClass = "risk-high";
+          riskIcon = "❄️";
+        } else if (weather.includes("rain") && description.includes("heavy")) {
+          riskLevel = "Medium";
+          riskMessage =
+            "Heavy rainfall. Potential for flash flooding in low-lying areas.";
+          safetyTips = `
+            <li>Avoid driving through flooded roads</li>
+            <li>Move to higher ground if in flood-prone areas</li>
+            <li>Prepare emergency supplies</li>
+            <li>Monitor local weather alerts</li>
+            <li>Clear drains and gutters if possible</li>
+        `;
+          riskPercentage = 60;
+          riskClass = "risk-medium";
+          riskIcon = "🌧️";
+        } else if (weather.includes("fog") && visibility < 1000) {
+          riskLevel = "Medium";
+          riskMessage = "Dense fog conditions. Reduced visibility for driving.";
+          safetyTips = `
+            <li>Drive slowly with headlights on if travel is necessary</li>
+            <li>Maintain greater distance between vehicles</li>
+            <li>Use fog lights if available</li>
+            <li>Consider delaying travel if possible</li>
+            <li>Listen to traffic updates</li>
+        `;
+          riskPercentage = 50;
+          riskClass = "risk-medium";
+          riskIcon = "🌫️";
+        }
+
+        return {
+          level: riskLevel,
+          message: riskMessage,
+          tips: safetyTips,
+          percentage: riskPercentage,
+          class: riskClass,
+          icon: riskIcon,
+        };
+      }
+
+      async function fetchEmergencyAlerts(lat, lon) {
+        try {
+          // Note: This is a placeholder for a real emergency alert API
+          // In a real application, you would need to use a service that provides emergency alerts
+          const apiUrl = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly&appid=d28274b5fe592e1f1e558103a5e66370`;
+
+          const response = await fetch(apiUrl);
+          if (!response.ok) {
+            throw new Error("Failed to fetch alerts");
+          }
+
+          const data = await response.json();
+
+          // Check if there are any alerts
+          if (data.alerts && data.alerts.length > 0) {
+            let alertsHtml = "";
+
+            data.alerts.forEach((alert) => {
+              alertsHtml += `
+                    <div class="alert alert-danger mb-2">
+                        <strong>${alert.event}</strong>
+                        <p>${alert.description}</p>
+                        <small>From: ${new Date(
+                          alert.start * 1000
+                        ).toLocaleString()} to ${new Date(
+                alert.end * 1000
+              ).toLocaleString()}</small>
+                    </div>
+                `;
+            });
+
+            $("#emergencyAlertsContainer").html(alertsHtml);
+            $("#emergencyAlertsSection").removeClass("d-none");
+          } else {
+            $("#emergencyAlertsContainer").html(
+              "<p>No active weather alerts for this area.</p>"
+            );
+          }
+        } catch (error) {
+          console.error("Error fetching emergency alerts:", error);
+          $("#emergencyAlertsContainer").html(
+            "<p>Unable to fetch emergency alerts at this time.</p>"
+          );
+        }
+      }
+
+      async function fetchAQIData(lat, lon) {
+        let fetchAQIData = await fetch(
+          `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=d28274b5fe592e1f1e558103a5e66370`
+        );
+        let formattedData = await fetchAQIData.json();
+        console.log("AQI Data: ", formattedData);
+        let list = formattedData.list[0].components;
+        console.log("Line 242: ", list);
+
+        $("#no2Value")[0].innerText = list.no2;
+
+        $("#o3Value")[0].innerText = list.o3;
+
+        $("#coValue")[0].innerText = list.co;
+
+        $("#so2Value")[0].innerText = list.so2;
+      }
+
+      async function nextFiveDays(lat, lon) {
+        const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=d28274b5fe592e1f1e558103a5e66370&units=metric`;
+        try {
+          const response = await fetch(apiUrl);
+          if (!response.ok) {
+            throw new Error("Failed to fetch weather data");
+          }
+          const data = await response.json();
+
+          let dailyForecasts = {};
+
+          // Extract unique daily data
+          data.list.forEach((item) => {
+            let date = item.dt_txt.split(" ")[0]; // Extract date only
+            if (!dailyForecasts[date]) {
+              dailyForecasts[date] = {
+                temp: item.main.temp.toFixed(1), // Round temperature
+                icon: item.weather[0].icon, // Weather icon
+                day: new Date(date).toLocaleDateString("en-US", {
+                  weekday: "long",
+                }), // Get day name
+              };
+            }
+          });
+
+          // Get first 5 unique days
+          let forecastHtml = "";
+          Object.keys(dailyForecasts)
+            .slice(0, 5)
+            .forEach((date) => {
+              let forecast = dailyForecasts[date];
+              forecastHtml += `
+                        <div class="forecastRow d-flex align-items-center justify-content-between">
+                            <div class="d-flex gap-1 align-items-center">
+                                <img src="{{ url_for('static', filename='images/cloudy.png') }}" alt="" width="35px">
+                                <h6 class="m-0">${forecast.temp} &deg;C</h6>
+                            </div>
+                            <h6 class="m-0">${forecast.day}</h6>
+                            <h6 class="m-0">${date}</h6>
+                        </div>
+                    `;
+            });
+
+          document.getElementById("forecastContainer").innerHTML = forecastHtml;
+        } catch (error) {
+          console.error(error);
+          alert("Failed to retrieve weather data. Please check your API key.");
+        }
+      }
+
+      async function todayTemps(lat, lon) {
+        const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=d28274b5fe592e1f1e558103a5e66370&units=metric`;
+
+        try {
+          const response = await fetch(apiUrl);
+          if (!response.ok) {
+            throw new Error("Failed to fetch weather data");
+          }
+          const data = await response.json();
+
+          let todayDate = new Date().toISOString().split("T")[0]; // Get today's date (YYYY-MM-DD)
+          let todayForecasts = data.list.filter((item) =>
+            item.dt_txt.startsWith(todayDate)
+          ); // Get today's data
+
+          // Select specific time intervals (e.g., every 3 hours from the API)
+          let selectedHours = todayForecasts.slice(0, 6); // Get first 6 hourly forecasts
+
+          let todayHtml = "";
+          selectedHours.forEach((item) => {
+            let time = new Date(item.dt_txt).toLocaleTimeString("en-US", {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+            }); // Format time
+            let temp = item.main.temp.toFixed(1); // Round temperature
+            let icon = item.weather[0].icon; // Weather icon
+
+            todayHtml += `
+                        <div class="todayTemp">
+                            <h6 class="m-0">${time}</h6>
+                            <img src="{{ url_for('static', filename='images/cloudy.png') }}" alt="" width="35px">
+                            <h5>${temp}&deg;C</h5>
+                        </div>
+                    `;
+          });
+
+          document.getElementById("todayTempContainer").innerHTML = todayHtml;
+        } catch (error) {
+          console.error(error);
+          alert("Failed to retrieve weather data. Please check your API key.");
+        }
+      }
+
+      async function fetchData() {
+        let cityName = document.getElementsByClassName("inputfield")[0].value;
+
+        let requestData = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=d28274b5fe592e1f1e558103a5e66370&units=metric`
+        );
+        let formattedData = await requestData.json();
+        console.log("Formatted Data: ", formattedData);
+
+        let responseCityName = formattedData.name;
+        let responseTemp = formattedData.main.temp;
+        let skyDescription = formattedData.weather[0].description;
+
+        $("#cityName")[0].innerText = responseCityName;
+        $("#cityTemp")[0].innerText = responseTemp;
+        $("#skyDesc")[0].innerText = skyDescription;
+        $("#humidity")[0].innerText = formattedData.main.humidity;
+        $("#pressure")[0].innerText = formattedData.main.pressure;
+        $("#feelsLike")[0].innerText = formattedData.main.feels_like;
+        $("#visiblity")[0].innerText = formattedData.visibility;
+
+        //Updating date and time
+        let properDate = dateFormat(formattedData.dt);
+        let date = properDate.split(",")[0];
+        let time = properDate.split(",")[1];
+        $("#date")[0].innerText = date;
+        $("#time")[0].innerText = time;
+
+        //updating sunrise and sunset
+        let sunriseTimeStamp = formattedData.sys.sunrise;
+        let sunsetTimeStamp = formattedData.sys.sunset;
+        let properSunriseTime = dateFormat(sunriseTimeStamp).split(",")[1];
+        let properSunsetTime = dateFormat(sunsetTimeStamp).split(",")[1];
+
+        $("#sunriseTime")[0].innerText = properSunriseTime;
+        $("#sunsetTime")[0].innerText = properSunsetTime;
+
+        let lat = formattedData.coord.lat;
+        let lon = formattedData.coord.lon;
+
+        fetchAQIData(lat, lon);
+        nextFiveDays(lat, lon);
+        todayTemps(lat, lon);
+
+        const riskInfo = calculateDisasterRisk(data);
+
+        // Update Disaster Risk UI
+        document.getElementById("riskLevel").innerText = riskInfo.level;
+        document.getElementById("riskIcon").innerText = riskInfo.icon;
+        document.getElementById("riskMessage").innerText = riskInfo.message;
+        document.getElementById("riskBar").style.width =
+          riskInfo.percentage + "%";
+        document.getElementById("riskBar").className =
+          "progress-bar " + riskInfo.class;
+        document.getElementById("safetyTips").innerHTML = riskInfo.tips;
+
+        // Fetch emergency alerts
+        fetchEmergencyAlerts(data.coord.lat, data.coord.lon);
+        updateRiskDisplay(riskLevels[currentIndex]);
+      }
+
+      // Add this to your existing JavaScript
+
+      // Function to add classes to elements based on risk level
+      function updateRiskDisplay(riskLevel) {
+        const riskElement = document.getElementById("riskLevel");
+        const riskBar = document.getElementById("riskBar");
+        const riskIcon = document.getElementById("riskIcon");
+        const riskMessage = document.getElementById("riskMessage");
+        const safetyTips = document.getElementById("safetyTips");
+
+        // Clear previous content
+        safetyTips.innerHTML = "";
+
+        // Set default values
+        let barWidth = "10%";
+        let riskClass = "risk-low";
+        let emoji = "😊";
+        let message = "No immediate disaster risk detected.";
+        let tips = ["Stay informed with local weather updates."];
+
+        // Update based on risk level
+        switch (riskLevel) {
+          case "Low":
+            barWidth = "25%";
+            riskClass = "risk-low";
+            emoji = "✅";
+            message = "Weather conditions are stable.";
+            tips = [
+              "Enjoy your day with normal activities.",
+              "Stay hydrated and use sun protection if needed.",
+              "Keep an eye on weather forecasts for any changes.",
+            ];
+            break;
+          case "Moderate":
+            barWidth = "50%";
+            riskClass = "risk-moderate";
+            emoji = "⚠️";
+            message = "Minor weather disturbances possible.";
+            tips = [
+              "Plan outdoor activities with caution.",
+              "Keep devices charged and weather alerts enabled.",
+              "Check forecasts frequently for updates.",
+              "Prepare a basic emergency kit just in case.",
+            ];
+            break;
+          case "High":
+            barWidth = "75%";
+            riskClass = "risk-high";
+            emoji = "🚨";
+            message = "Potentially dangerous weather conditions.";
+            tips = [
+              "Avoid unnecessary travel if possible.",
+              "Secure loose objects outside your home.",
+              "Keep emergency supplies ready.",
+              "Follow evacuation instructions if given by authorities.",
+              "Stay away from flood-prone areas.",
+            ];
+            break;
+          case "Extreme":
+            barWidth = "100%";
+            riskClass = "risk-extreme";
+            emoji = "⛔";
+            message = "Severe weather conditions. Take immediate action!";
+            tips = [
+              "Stay indoors and away from windows.",
+              "Move to higher ground if in flood-prone areas.",
+              "Follow emergency broadcasts for instructions.",
+              "Have emergency contacts and supplies ready.",
+              "Evacuate if instructed by authorities.",
+            ];
+            break;
+        }
+
+        // Update UI elements
+        riskElement.textContent = riskLevel;
+        riskElement.className = riskClass;
+        riskIcon.textContent = emoji;
+        riskMessage.textContent = message;
+        riskBar.style.width = barWidth;
+
+        // Add safety tips
+        tips.forEach((tip) => {
+          const li = document.createElement("li");
+          li.textContent = tip;
+          safetyTips.appendChild(li);
+
+          // Staggered animation
+          setTimeout(() => {
+            li.style.opacity = "1";
+          }, 100 * safetyTips.children.length);
+        });
+      }
+
+      // Add weather-related classes and animations
+      function addWeatherAnimations() {
+        // Add classes to images
+        document.querySelectorAll(".rightRow img").forEach((img) => {
+          img.classList.add("weather-icon");
+        });
+
+        // Add animation to forecast items
+        const forecastContainer = document.getElementById("forecastContainer");
+        if (forecastContainer && forecastContainer.children.length) {
+          Array.from(forecastContainer.children).forEach((item, index) => {
+            item.style.animationDelay = `${index * 0.2}s`;
+          });
+        }
+
+        // Add animation to hourly items
+        const todayContainer = document.getElementById("todayTempContainer");
+        if (todayContainer && todayContainer.children.length) {
+          Array.from(todayContainer.children).forEach((item, index) => {
+            item.classList.add("hour-temp");
+            item.style.animationDelay = `${index * 0.1}s`;
+          });
+        }
+      }
+
+      // Function to update the background based on weather conditions
+      function updateBackgroundAnimation(weatherData) {
+        const body = document.body;
+
+        // Clear previous weather classes
+        body.classList.remove(
+          "rainy",
+          "snowy",
+          "thunderstorm",
+          "clear",
+          "cloudy"
+        );
+
+        // Set time of day
+        const hour = new Date().getHours();
+        body.classList.remove("morning", "day", "evening", "night");
+
+        if (hour >= 5 && hour < 8) {
+          body.classList.add("morning");
+        } else if (hour >= 8 && hour < 17) {
+          body.classList.add("day");
+        } else if (hour >= 17 && hour < 20) {
+          body.classList.add("evening");
+        } else {
+          body.classList.add("night");
+        }
+
+        // If we have weather data, update accordingly
+        if (weatherData && weatherData.weather) {
+          const weatherCondition = weatherData.weather[0].main.toLowerCase();
+
+          if (
+            weatherCondition.includes("rain") ||
+            weatherCondition.includes("drizzle")
+          ) {
+            body.classList.add("rainy");
+          } else if (weatherCondition.includes("snow")) {
+            body.classList.add("snowy");
+          } else if (weatherCondition.includes("thunderstorm")) {
+            body.classList.add("rainy");
+            body.classList.add("thunderstorm");
+          } else if (weatherCondition.includes("clear")) {
+            body.classList.add("clear");
+          } else if (weatherCondition.includes("cloud")) {
+            body.classList.add("cloudy");
+          }
+        }
+      }
+
+      // Call this function initially to set up the background based on time
+      updateBackgroundAnimation();
+
+      // You can connect this to your existing fetchData function
+      // For example, add this to the end of your fetchData function:
+      /*
+.then(data => {
+  // Your existing code to process weather data
+  
+  // Update the background based on the weather
+  updateBackgroundAnimation(data);
+})
+*/
+
+      // For demonstration purposes, let's change the background every few seconds
+      // Remove this in production and integrate with your actual weather data
+      function demoBackgroundChanges() {
+        const weatherTypes = [
+          { weather: [{ main: "Clear" }] },
+          { weather: [{ main: "Clouds" }] },
+          { weather: [{ main: "Rain" }] },
+          { weather: [{ main: "Thunderstorm" }] },
+          { weather: [{ main: "Snow" }] },
+        ];
+
+        let index = 0;
+
+        // Initial update
+        updateBackgroundAnimation(weatherTypes[index]);
+
+        // Change every 8 seconds
+        setInterval(() => {
+          index = (index + 1) % weatherTypes.length;
+          updateBackgroundAnimation(weatherTypes[index]);
+        }, 8000);
+      }
+
+      // Start the demo
+      demoBackgroundChanges();
+
+      // You can also make the celestial body (sun/moon) move across the sky
+      function animateCelestialBody() {
+        const celestialBody = document.querySelector(".celestial-body");
+        const hour = new Date().getHours();
+
+        // Calculate position based on time of day
+        // 0 hours (midnight) = far left
+        // 12 hours (noon) = top center
+        // 23 hours (11pm) = far right
+
+        let xPos, yPos;
+
+        if (hour >= 6 && hour <= 18) {
+          // Day time - sun moves in arc from left to right
+          const progress = (hour - 6) / 12; // 0 to 1 over the day
+          xPos = 10 + progress * 80; // 10% to 90% of width
+          yPos = 15 - Math.sin(progress * Math.PI) * 14; // Arc from 15 down to 1 and back to 15
+
+          // Make sun yellow during day
+          celestialBody.style.background = "#ffdd66";
+          celestialBody.style.boxShadow =
+            "0 0 60px 30px rgba(255, 221, 102, 0.6)";
+        } else {
+          // Night time - moon moves in arc from right to left
+          let nightHour = hour;
+          if (hour < 6) nightHour = hour + 24; // adjust for after midnight
+          const progress = (nightHour - 18) / 12; // 0 to 1 over night
+          xPos = 90 - progress * 80; // 90% to 10% of width
+          yPos = 15 - Math.sin(progress * Math.PI) * 14; // Arc from 15 down to 1 and back to 15
+
+          // Make moon silver during night
+          celestialBody.style.background = "#dddddd";
+          celestialBody.style.boxShadow =
+            "0 0 60px 30px rgba(221, 221, 221, 0.3)";
+        }
+
+        celestialBody.style.left = `${xPos}%`;
+        celestialBody.style.top = `${yPos}%`;
+      }
+    </script>
+  </body>
+</html>
