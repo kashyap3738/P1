@@ -36,4 +36,20 @@ The aim is to provide early predictions that can help authorities and communitie
 ---
 
 ##  Project Structure
+disaster-prediction/
+│
+├── earthquake_module/
+│ ├── model.py
+│ └── data/
+│
+├── multi_disaster_module/
+│ ├── model.py
+│ └── data/
+│
+├── utils/
+│ └── preprocessing.py
+│
+├── app.py # Web interface (optional)
+├── requirements.txt
+└── README.md
 
