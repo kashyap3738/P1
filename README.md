@@ -1,4 +1,4 @@
-# 🌍 Disaster Prediction Model
+# Disaster Prediction Model
 
 This project is a machine learning-based Disaster Prediction System with two main modules:
 - **Earthquake Prediction Module**
@@ -8,7 +8,7 @@ The aim is to provide early predictions that can help authorities and communitie
 
 ---
 
-## 🔧 Features
+##  Features
 
 ### 1. Earthquake Prediction Module
 - Uses seismic data to predict potential earthquakes.
@@ -25,7 +25,7 @@ The aim is to provide early predictions that can help authorities and communitie
 
 ---
 
-## 🧠 Technologies Used
+## Technologies Used
 - Python
 - Scikit-learn / TensorFlow / Keras *(based on your model)*
 - Pandas, NumPy
@@ -35,5 +35,5 @@ The aim is to provide early predictions that can help authorities and communitie
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
